@@ -1,0 +1,43 @@
+{
+  "nodes": [
+    { "id": "UX Principles", "group": 0 },
+    { "id": "Usability", "group": 1 },
+    { "id": "Accessibility", "group": 1 },
+    { "id": "Aesthetics", "group": 1 },
+    { "id": "Information Architecture", "group": 1 },
+    { "id": "Interaction Design", "group": 1 },
+    { "id": "Consistency", "group": 2 },
+    { "id": "Feedback", "group": 2 },
+    { "id": "Learnability", "group": 2 },
+    { "id": "Error Prevention", "group": 3 },
+    { "id": "Keyboard Navigation", "group": 3 },
+    { "id": "Contrast", "group": 3 },
+    { "id": "Typography", "group": 4 },
+    { "id": "Color Theory", "group": 4 },
+    { "id": "Layout", "group": 5 },
+    { "id": "Navigation", "group": 5 },
+    { "id": "Affordance", "group": 6 },
+    { "id": "Simplicity", "group": 6 },
+    { "id": "Flexibility", "group": 6 }
+  ],
+  "links": [
+    { "source": "UX Principles", "target": "Usability" },
+    { "source": "UX Principles", "target": "Accessibility" },
+    { "source": "UX Principles", "target": "Aesthetics" },
+    { "source": "UX Principles", "target": "Information Architecture" },
+    { "source": "UX Principles", "target": "Interaction Design" },
+    { "source": "Usability", "target": "Consistency" },
+    { "source": "Usability", "target": "Feedback" },
+    { "source": "Usability", "target": "Learnability" },
+    { "source": "Accessibility", "target": "Error Prevention" },
+    { "source": "Accessibility", "target": "Keyboard Navigation" },
+    { "source": "Accessibility", "target": "Contrast" },
+    { "source": "Aesthetics", "target": "Typography" },
+    { "source": "Aesthetics", "target": "Color Theory" },
+    { "source": "Information Architecture", "target": "Layout" },
+    { "source": "Information Architecture", "target": "Navigation" },
+    { "source": "Interaction Design", "target": "Affordance" },
+    { "source": "Interaction Design", "target": "Simplicity" },
+    { "source": "Interaction Design", "target": "Flexibility" }
+  ]
+}

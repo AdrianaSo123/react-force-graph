@@ -1,5 +1,42 @@
 <head>
-  <style> body { margin: 0; } </style>
+  <style>
+    body { margin: 0; overflow: hidden; font-family: 'Segoe UI', Arial, sans-serif; background: #f4f6fa; }
+    #header {
+      position: absolute; top: 0; left: 0; width: 100%; background: #222; color: #fff;
+      padding: 18px 24px 14px 24px; font-size: 2rem; font-weight: bold; letter-spacing: 0.04em; z-index: 10;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: space-between;
+    }
+    #header .links a {
+      color: #ffd600; text-decoration: none; margin-left: 18px; font-size: 1rem; font-weight: 400;
+      border-bottom: 1px dotted #ffd600; transition: border 0.2s;
+    }
+    #header .links a:hover { border-bottom: 2px solid #ffd600; }
+    #desc {
+      position: absolute; top: 64px; left: 0; width: 100%; background: #fff; color: #333;
+      font-size: 1.1rem; padding: 16px 24px 10px 24px; z-index: 9; box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+    }
+    #legend {
+      position: absolute; left: 20px; top: 120px; background: #fff; color: #222;
+      padding: 10px 14px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); font-size: 0.98rem; z-index: 8;
+      border: 1px solid #e0e0e0; max-width: 220px;
+    }
+    #graph { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; }
+    #info {
+      position: absolute; right: 20px; top: 120px; background: #fff; color: #222;
+      padding: 16px 18px; max-width: 280px; min-width: 180px; font-size: 1rem; border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08); z-index: 10; border: 1px solid #e0e0e0;
+    }
+    #info strong { font-size: 1.15em; color: #1565c0; }
+    #info .desc { margin-top: 8px; font-size: 0.98em; color: #333; }
+    @media (max-width: 700px) {
+      #header, #desc { font-size: 1.1rem; padding: 12px 10px; }
+      #legend, #info { left: 0; right: 0; max-width: none; min-width: 0; }
+      #legend { top: 90px; }
+      #info { top: 190px; }
+    }
+    /* High contrast for accessibility */
+    .force-graph-container canvas { outline: 2px solid #333; }
+  </style>
 
   <script type="importmap">{ "imports": {
     "react": "https://esm.sh/react",
@@ -11,17 +48,92 @@
 </head>
 
 <body>
-  <div id="graph"></div>
+  <div id="header">
+    <span>UX Principles Mind Map</span>
+    <span class="links">
+      <a href="https://github.com/AdrianaSo123/react-force-graph" target="_blank" rel="noopener">View on GitHub</a>
+      <a href="/" target="_self">Back to Portfolio</a>
+    </span>
+  </div>
+  <div id="desc">
+    Explore a network of UX principles and methods. Hover or click nodes to learn more about each concept. This interactive force-directed graph is part of my portfolio—built with React and <code>react-force-graph</code>.
+  </div>
+  <div id="legend">
+    <strong>Legend</strong><br/>
+    <span style="color:#1976d2">●</span> Core Principle<br/>
+    <span style="color:#43a047">●</span> Usability/Accessibility<br/>
+    <span style="color:#fbc02d">●</span> Aesthetics<br/>
+    <span style="color:#8e24aa">●</span> Information Architecture<br/>
+    <span style="color:#e64a19">●</span> Interaction Design<br/>
+    <span style="color:#0288d1">●</span> User Testing/Research<br/>
+    <span style="color:#757575">●</span> Other Concepts
+  </div>
+  <div id="graph" aria-label="UX Principles Force Graph" role="region" tabindex="0"></div>
+  <div id="info">Loading UX Mind Map...</div>
 
   <script src="//cdn.jsdelivr.net/npm/@babel/standalone"></script>
   <script type="text/jsx" data-type="module">
     import ForceGraph3D from 'https://esm.sh/react-force-graph-3d?external=react';
     import React from 'react';
     import { createRoot } from 'react-dom';
-    import { genRandomTree } from '../datasets/random-data.js';
 
-    createRoot(document.getElementById('graph')).render(
-      <ForceGraph3D graphData={genRandomTree()}/>
-    );
+    class App extends React.Component {
+      state = { data: null, hoveredNode: null, selectedNode: null, descriptions: {} };
+      componentDidMount() {
+        fetch('ux-principles.json')
+          .then(res => res.json())
+          .then(data => this.setState({ data }));
+        fetch('descriptions.json')
+          .then(res => res.json())
+          .then(descriptions => this.setState({ descriptions }));
+      }
+      getNodeDesc(node) {
+        const { descriptions } = this.state;
+        if (!node) return '';
+        return descriptions[node.id] || '';
+      }
+      render() {
+        const { data, hoveredNode, selectedNode, descriptions } = this.state;
+        if (!data || !descriptions) return <div style={{ color: '#333', padding: '20px' }}>Loading...</div>;
+        return (
+          <>
+            <ForceGraph3D
+              graphData={data}
+              nodeAutoColorBy="group"
+              nodeLabel={node => `${node.id}\n${this.getNodeDesc(node)}`}
+              linkDirectionalParticles={2}
+              linkDirectionalParticleSpeed={0.005}
+              linkDirectionalArrowLength={3}
+              linkDirectionalArrowRelPos={1}
+              onNodeHover={node => this.setState({ hoveredNode: node })}
+              onNodeClick={node => this.setState({ selectedNode: node })}
+              backgroundColor="#f4f6fa"
+              enableNodeDrag={true}
+              nodeOpacity={1}
+              nodeResolution={16}
+              nodeRelSize={7}
+            />
+            <div id="info" role="status" aria-live="polite">
+              {selectedNode ? (
+                <div>
+                  <strong>{selectedNode.id}</strong>
+                  <div className="desc">{this.getNodeDesc(selectedNode)}</div>
+                  <div style={{marginTop: '10px', fontSize: '0.95em', color:'#666'}}>Group: {selectedNode.group}</div>
+                </div>
+              ) : hoveredNode ? (
+                <div>
+                  <strong>{hoveredNode.id}</strong>
+                  <div className="desc">{this.getNodeDesc(hoveredNode)}</div>
+                  <div style={{marginTop: '10px', fontSize: '0.95em', color:'#666'}}>Group: {hoveredNode.group}</div>
+                </div>
+              ) : (
+                <div>Hover or click a node for details.</div>
+              )}
+            </div>
+          </>
+        );
+      }
+    }
+    createRoot(document.getElementById('graph')).render(<App />);
   </script>
 </body>
